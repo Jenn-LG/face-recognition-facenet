@@ -3,22 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reconocimiento Facial en Tiempo Real</title>
+    <title>Reconocimiento Facial - Curso RNP 2025</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👤</text></svg>">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" type="image/png" href="favicon-32x32.png">
     <style>
         :root {
-            --primary: #4361ee;
-            --secondary: #3f37c9;
-            --accent: #4cc9f0;
-            --success: #4ade80;
-            --danger: #f43f5e;
-            --dark: #1e293b;
-            --light: #f8fafc;
-            --gray: #94a3b8;
-            --face-box: #1E293B; /* Changed to black for all faces */
+            --primary-dark: #4361ee;
+            --secondary-dark: #3f37c9;
+            --accent-dark: #4cc9f0;
+            --success-dark: #4ade80;
+            --danger-dark: #f43f5e;
+            --dark-dark: #1e293b;
+            --light-dark: #f8fafc;
+            --gray-dark: #94a3b8;
+            
+            --primary-light: #3a86ff;
+            --secondary-light: #2667cc;
+            --accent-light: #00b4d8;
+            --success-light: #38b000;
+            --danger-light: #d90429;
+            --dark-light: #212529;
+            --light-light: #ffffff;
+            --gray-light: #6c757d;
+            
+            --face-box: #1E293B;
             --face-label: #1E293B;
-            --face-label-unknown: #1E293B; /* Changed to match known faces */
+            --face-label-unknown: #1E293B;
+            
+            --bg-dark: #121212;
+            --bg-light: #ffffff;
+            --text-dark: #ffffff;
+            --text-light: #212529;
+            --card-bg-dark: #1e1e1e;
+            --card-bg-light: #ffffff;
+            --border-dark: #333;
+            --border-light: #dee2e6;
         }
         
         * {
@@ -29,10 +49,15 @@
         
         body {
             font-family: 'Poppins', sans-serif;
-            background-color: #f1f5f9;
-            color: var(--dark);
+            background-color: var(--bg-dark);
+            color: var(--text-dark);
             min-height: 100vh;
-            padding: 2rem 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        body.light-mode {
+            background-color: var(--bg-light);
+            color: var(--text-light);
         }
         
         .container {
@@ -41,25 +66,63 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding: 2rem 1rem;
         }
         
         header {
             text-align: center;
             margin-bottom: 2rem;
             width: 100%;
+            position: relative;
+        }
+        
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        
+        .logo-img {
+            height: 80px;
+            margin: 0 15px;
+        }
+        
+        .logo-fallback {
+            display: none;
+            width: 80px;
+            height: 80px;
+            background-color: var(--primary-dark);
+            border-radius: 8px;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: white;
+            margin: 0 15px;
+        }
+        
+        .light-mode .logo-fallback {
+            background-color: var(--primary-light);
         }
         
         h1 {
-            font-size: 2.5rem;
+            font-size: 2.2rem;
             font-weight: 700;
-            color: var(--primary);
+            color: var(--primary-dark);
             margin-bottom: 0.5rem;
+        }
+        
+        .light-mode h1 {
+            color: var(--primary-light);
         }
         
         .subtitle {
             font-size: 1.1rem;
-            color: var(--gray);
+            color: var(--gray-dark);
             font-weight: 400;
+        }
+        
+        .light-mode .subtitle {
+            color: var(--gray-light);
         }
         
         .video-section {
@@ -77,8 +140,13 @@
             height: 480px;
             border-radius: 12px;
             overflow: hidden;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
             background-color: #000;
+            border: 3px solid var(--primary-dark);
+        }
+        
+        .light-mode .video-container {
+            border-color: var(--primary-light);
         }
         
         #video {
@@ -138,14 +206,22 @@
         }
         
         .btn-primary {
-            background-color: var(--primary);
+            background-color: var(--primary-dark);
             color: white;
         }
         
+        .light-mode .btn-primary {
+            background-color: var(--primary-light);
+        }
+        
         .btn-primary:hover {
-            background-color: var(--secondary);
+            background-color: var(--secondary-dark);
             transform: translateY(-2px);
             box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        .light-mode .btn-primary:hover {
+            background-color: var(--secondary-light);
         }
         
         .btn-primary:active {
@@ -154,21 +230,44 @@
         }
         
         .btn-danger {
-            background-color: var(--danger);
+            background-color: var(--danger-dark);
             color: white;
+        }
+        
+        .light-mode .btn-danger {
+            background-color: var(--danger-light);
+        }
+        
+        .btn-dark-mode {
+            position: absolute;
+            top: 0;
+            right: 1rem;
+            background-color: var(--dark-dark);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+        }
+        
+        .light-mode .btn-dark-mode {
+            background-color: var(--dark-light);
         }
         
         .status-badge {
             display: inline-flex;
             align-items: center;
             padding: 0.5rem 1rem;
-            background-color: var(--accent);
+            background-color: var(--accent-dark);
             color: white;
             border-radius: 50px;
             font-weight: 500;
             font-size: 0.9rem;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             animation: pulse 2s infinite;
+        }
+        
+        .light-mode .status-badge {
+            background-color: var(--accent-light);
         }
         
         @keyframes pulse {
@@ -190,10 +289,16 @@
         }
         
         .results-card {
-            background-color: white;
+            background-color: var(--card-bg-dark);
             border-radius: 12px;
             padding: 1.5rem;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--border-dark);
+        }
+        
+        .light-mode .results-card {
+            background-color: var(--card-bg-light);
+            border-color: var(--border-light);
         }
         
         .results-header {
@@ -202,29 +307,43 @@
             align-items: center;
             margin-bottom: 1rem;
             padding-bottom: 0.75rem;
-            border-bottom: 1px solid #e2e8f0;
+            border-bottom: 1px solid var(--border-dark);
+        }
+        
+        .light-mode .results-header {
+            border-bottom-color: var(--border-light);
         }
         
         .results-title {
             font-size: 1.25rem;
             font-weight: 600;
-            color: var(--dark);
+            color: var(--text-dark);
+        }
+        
+        .light-mode .results-title {
+            color: var(--text-light);
         }
         
         .people-list {
             display: flex;
             flex-direction: column;
             gap: 0.75rem;
-            min-height: 100px; /* Added to maintain consistent height */
+            min-height: 100px;
         }
         
         .person-card {
             display: flex;
             align-items: center;
             padding: 1rem;
-            background-color: #f8fafc;
+            background-color: rgba(67, 97, 238, 0.1);
             border-radius: 8px;
             transition: all 0.2s ease;
+            border: 1px solid rgba(67, 97, 238, 0.2);
+        }
+        
+        .light-mode .person-card {
+            background-color: rgba(58, 134, 255, 0.1);
+            border-color: rgba(58, 134, 255, 0.2);
         }
         
         .person-card:hover {
@@ -236,7 +355,7 @@
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background-color: var(--primary);
+            background-color: var(--primary-dark);
             color: white;
             display: flex;
             align-items: center;
@@ -245,8 +364,16 @@
             margin-right: 1rem;
         }
         
+        .light-mode .person-icon {
+            background-color: var(--primary-light);
+        }
+        
         .person-icon.denied {
-            background-color: var(--danger);
+            background-color: var(--danger-dark);
+        }
+        
+        .light-mode .person-icon.denied {
+            background-color: var(--danger-light);
         }
         
         .person-info {
@@ -256,33 +383,91 @@
         .person-name {
             font-weight: 600;
             font-size: 1.1rem;
-            color: var(--dark);
+            color: var(--text-dark);
             margin-bottom: 0.25rem;
         }
         
+        .light-mode .person-name {
+            color: var(--text-light);
+        }
+        
         .person-name.denied {
-            color: var(--danger);
+            color: var(--danger-dark);
+        }
+        
+        .light-mode .person-name.denied {
+            color: var(--danger-light);
         }
         
         .no-results {
             text-align: center;
             padding: 2rem;
-            color: var(--dark);
+            color: var(--text-dark);
             font-weight: 600;
             font-size: 1.1rem;
             font-style: normal;
         }
         
+        .light-mode .no-results {
+            color: var(--text-light);
+        }
+        
         .waiting-detection {
             text-align: center;
             padding: 2rem;
-            color: var(--gray);
+            color: var(--gray-dark);
             font-style: italic;
+        }
+        
+        .light-mode .waiting-detection {
+            color: var(--gray-light);
+        }
+        
+        .footer {
+            margin-top: 3rem;
+            padding: 1.5rem 0;
+            text-align: center;
+            border-top: 1px solid var(--border-dark);
+            width: 100%;
+        }
+        
+        .light-mode .footer {
+            border-top-color: var(--border-light);
+        }
+        
+        .github-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-dark);
+            text-decoration: none;
+        }
+        
+        .light-mode .github-link {
+            color: var(--text-light);
+        }
+        
+        .github-link:hover {
+            text-decoration: underline;
+            color: var(--accent-dark);
+        }
+        
+        .light-mode .github-link:hover {
+            color: var(--accent-light);
         }
         
         @media (max-width: 768px) {
             h1 {
-                font-size: 2rem;
+                font-size: 1.8rem;
+            }
+            
+            .logo-img {
+                height: 60px;
+            }
+            
+            .logo-fallback {
+                width: 60px;
+                height: 60px;
             }
             
             .video-container {
@@ -315,6 +500,11 @@
             margin-top: -8px;
             z-index: 10;
             white-space: nowrap;
+            background-color: var(--primary-dark);
+        }
+        
+        .light-mode .face-label {
+            background-color: var(--primary-light);
         }
         
         /* iOS specific fixes */
@@ -343,8 +533,22 @@
 <body>
     <div class="container">
         <header>
+            <button id="darkModeToggle" class="btn-dark-mode" onclick="toggleDarkMode()">
+                <span id="darkModeIcon">🌙</span> Modo Claro
+            </button>
+            
+            <div class="logo-container">
+                <img class="logo-img" src="logo_rnp.png" alt="Logo RNP" 
+                     onerror="this.style.display='none'; document.getElementById('rnp-fallback').style.display='flex';">
+                <div id="rnp-fallback" class="logo-fallback">RNP</div>
+                
+                <img class="logo-img" src="logo_curso.png" alt="Logo Curso" 
+                     onerror="this.style.display='none'; document.getElementById('curso-fallback').style.display='flex';">
+                <div id="curso-fallback" class="logo-fallback">2025</div>
+            </div>
+            
             <h1>Reconocimiento Facial</h1>
-            <p class="subtitle">Detección y reconocimiento facial en tiempo real</p>
+            <p class="subtitle">Curso RNP 2025 - Detección en tiempo real con DeepFace</p>
         </header>
         
         <div class="video-section">
@@ -391,6 +595,15 @@
                 </div>
             </div>
         </div>
+        
+        <footer class="footer">
+            <a href="https://github.com/Jenn-LG/face-recognition-facenet" class="github-link" target="_blank" rel="noopener noreferrer">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-github" viewBox="0 0 16 16">
+                    <path d="M8 0C3.58 0 0 3.58 0 8a8.013 8.013 0 0 0 5.47 7.59c.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2 .37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13 -.28-.15-.66-.52-.01-.53.61-.01 1.04.57 1.18.8.7 1.18 1.82.85 2.27.65 .07-.51.27-.85.49-1.04-1.78-.2-3.64-.88-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.01.08-2.11 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27 c1.53-1.03 2.2-.82 2.2-.82.44 1.1.16 1.91.08 2.11 .51.56.82 1.28.82 2.15 0 3.07-1.87 3.75-3.65 3.95 .28.24.52.73.52 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/>
+                </svg>
+                Ver código en GitHub
+            </a>
+        </footer>
     </div>
 
     <script>
@@ -405,6 +618,8 @@
         const requestPermissionBtn = document.getElementById('requestPermissionBtn');
         const status = document.getElementById('status');
         const peopleList = document.getElementById('peopleList');
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const darkModeIcon = document.getElementById('darkModeIcon');
         
         let stream = null;
         let isRunning = false;
@@ -414,7 +629,7 @@
         let currentCameraIndex = 0;
         let lastDetectionResults = [];
         let isProcessing = false;
-        let trackedFaces = []; // Para seguimiento de caras entre frames
+        let trackedFaces = [];
         let isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
         
         // Configurar el tamaño de los canvas
@@ -428,7 +643,7 @@
             faceCanvas.height = containerHeight;
         }
         
-        // Añade esto después de la declaración de variables globales
+        // Manejar errores del video
         video.addEventListener('error', (e) => {
             console.error('Error en el elemento de video:', e);
             status.innerHTML = `
@@ -439,14 +654,39 @@
                 </svg>
                 Error en el video
             `;
-            status.style.backgroundColor = 'var(--danger)';
+            status.style.backgroundColor = 'var(--danger-dark)';
         });
+        
+        // Alternar modo oscuro/claro
+        function toggleDarkMode() {
+            document.body.classList.toggle('light-mode');
+            
+            if (document.body.classList.contains('light-mode')) {
+                darkModeIcon.textContent = '🌙';
+                darkModeToggle.innerHTML = '<span id="darkModeIcon">🌙</span> Modo Oscuro';
+            } else {
+                darkModeIcon.textContent = '☀️';
+                darkModeToggle.innerHTML = '<span id="darkModeIcon">☀️</span> Modo Claro';
+            }
+        }
         
         // Inicializar la aplicación
         async function init() {
             switchCameraBtn.addEventListener('click', switchCamera);
             requestPermissionBtn.addEventListener('click', startCamera);
             window.addEventListener('resize', setupCanvases);
+            
+            // Verificar logos después de 1 segundo
+            setTimeout(() => {
+                const logos = document.querySelectorAll('.logo-img');
+                logos.forEach(logo => {
+                    if (!logo.complete || logo.naturalWidth === 0) {
+                        logo.style.display = 'none';
+                        const fallbackId = logo.alt.toLowerCase().replace('logo ', '').replace(' ', '-') + '-fallback';
+                        document.getElementById(fallbackId).style.display = 'flex';
+                    }
+                });
+            }, 1000);
             
             try {
                 // Verificar si el navegador soporta getUserMedia
@@ -470,7 +710,7 @@
                         </svg>
                         Permiso requerido
                     `;
-                    status.style.backgroundColor = 'var(--accent)';
+                    status.style.backgroundColor = 'var(--accent-dark)';
                 } else {
                     // En otros dispositivos, iniciar la cámara automáticamente
                     await startCamera();
@@ -485,7 +725,7 @@
                     </svg>
                     Error: ${error.message}
                 `;
-                status.style.backgroundColor = 'var(--danger)';
+                status.style.backgroundColor = 'var(--danger-dark)';
             }
         }
         
@@ -510,7 +750,7 @@
             } catch (error) {
                 console.error('Error al enumerar cámaras:', error);
                 status.textContent = 'Error al acceder a las cámaras';
-                status.style.backgroundColor = 'var(--danger)';
+                status.style.backgroundColor = 'var(--danger-dark)';
             }
         }
         
@@ -586,7 +826,7 @@
                     </svg>
                     Cámara activa
                 `;
-                status.style.backgroundColor = 'var(--accent)';
+                status.style.backgroundColor = 'var(--accent-dark)';
                 
                 // Iniciar el renderizado continuo del video
                 startVideoRendering();
@@ -595,8 +835,6 @@
                 startFaceRecognition();
                 
                 // Volver a enumerar las cámaras después de obtener permisos
-                // Esto ayuda en dispositivos móviles donde las etiquetas de las cámaras
-                // solo están disponibles después de obtener permisos
                 await enumerateCameras();
             } catch (error) {
                 console.error('Error al iniciar la cámara:', error);
@@ -608,7 +846,7 @@
                     </svg>
                     Error al acceder a la cámara
                 `;
-                status.style.backgroundColor = 'var(--danger)';
+                status.style.backgroundColor = 'var(--danger-dark)';
                 
                 // Mostrar mensaje de error más específico
                 peopleList.innerHTML = `
@@ -699,7 +937,7 @@
                         </svg>
                         Modelos cargados (${data.identities} identidades)
                     `;
-                    status.style.backgroundColor = 'var(--success)';
+                    status.style.backgroundColor = 'var(--success-dark)';
 
                     if (processingInterval) clearInterval(processingInterval);
                     processingInterval = setInterval(processFrame, 500);
@@ -716,7 +954,7 @@
                         </svg>
                         Cargando modelos...
                     `;
-                    status.style.backgroundColor = 'var(--accent)';
+                    status.style.backgroundColor = 'var(--accent-dark)';
 
                     peopleList.innerHTML = `
                         <div class="waiting-detection">
@@ -741,7 +979,7 @@
                     </svg>
                     Error de conexión
                 `;
-                status.style.backgroundColor = 'var(--danger)';
+                status.style.backgroundColor = 'var(--danger-dark)';
                 setTimeout(checkModelsStatus, 5000);
             }
         }
@@ -937,9 +1175,6 @@
                 label.style.left = `${face.currentX}px`;
                 label.style.top = `${face.currentY - 30}px`;
                 
-                // Estilo según si es conocido o desconocido - mismo color para todos
-                label.style.backgroundColor = 'var(--face-label)';
-                
                 // Añadir la etiqueta al contenedor
                 faceLabelsContainer.appendChild(label);
             });
@@ -967,8 +1202,15 @@
                 const denyCard = document.createElement('div');
                 denyCard.className = 'person-card';
                 denyCard.innerHTML = `
+                    <div class="person-icon denied">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="15" y1="9" x2="9" y2="15"/>
+                            <line x1="9" y1="9" x2="15" y2="15"/>
+                        </svg>
+                    </div>
                     <div class="person-info">
-                    <div class="person-name">Acceso Denegado</div>
+                        <div class="person-name denied">Acceso Denegado</div>
                     </div>`;
                 peopleList.appendChild(denyCard);
                 return;
@@ -978,8 +1220,14 @@
             const welcomeCard = document.createElement('div');
             welcomeCard.className = 'person-card';
             welcomeCard.innerHTML = `
+                <div class="person-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                    </svg>
+                </div>
                 <div class="person-info">
-                <div class="person-name">Bienvenido, ${resultados[0].nombre}</div>
+                    <div class="person-name">Bienvenido, ${resultados[0].nombre}</div>
                 </div>`;
             peopleList.appendChild(welcomeCard);
 
@@ -1003,10 +1251,8 @@
             });
         }
 
-        
         // Inicializar la aplicación cuando se cargue la página
         window.addEventListener('load', init);
     </script>
 </body>
 </html>
-

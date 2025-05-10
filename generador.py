@@ -9,11 +9,11 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 
 # ========== CONFIGURACIÓN GENERAL ==========
-DATA_DIR = 'output_resized_512x512'
-PROCESSED_DIR = 'faces_processed'
-EMBEDDINGS_PATH = 'embeddings.pkl'
+DATA_DIR = 'output_resized_512x512'  # Carpeta de imágenes originales
+PROCESSED_DIR = 'faces_processed'  # Carpeta donde se guardarán las imágenes aumentadas
+EMBEDDINGS_PATH = 'embeddings.pkl'  # Archivo donde se guardarán los embeddings
 
-MODEL_NAME = 'Facenet'
+MODEL_NAME = 'Facenet'  # Modelo preentrenado usado para extraer embeddings
 
 
 # ========== FUNCIÓN PARA OBTENER EMBEDDINGS ==========
@@ -30,7 +30,7 @@ def obtener_embedding(img_path):
     embedding_info = DeepFace.represent(
         img_path=img_path,
         model_name=MODEL_NAME,
-        enforce_detection=False
+        enforce_detection=False # No fuerza detección de rostro
     )
     embedding = embedding_info[0]['embedding']
     return np.array(embedding)
@@ -40,7 +40,12 @@ def obtener_embedding(img_path):
 def augment_and_process(input_dir, output_dir):
     """
     Aplica data augmentation a las imágenes y guarda las versiones aumentadas.
+
+    Args:
+        input_dir (str): Carpeta de imágenes originales.
+        output_dir (str): Carpeta para guardar imágenes aumentadas.
     """
+    # Configuración de tranformaciones de data augmentation
     datagen = ImageDataGenerator(
         rotation_range=20,
         width_shift_range=0.1,
@@ -50,16 +55,16 @@ def augment_and_process(input_dir, output_dir):
         horizontal_flip=True,
         fill_mode='nearest'
     )
-
+    # Crear carpeta de salida si no existe
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-
+    # Procesa cada carpeta (una por persona)
     for person in os.listdir(input_dir):
         person_dir = os.path.join(input_dir, person)
         if os.path.isdir(person_dir):
           output_person_dir = os.path.join(output_dir, person)
           os.makedirs(output_person_dir, exist_ok=True)
-
+          # Procesa cada imagen de la persona
           for img_file in os.listdir(person_dir):
               if img_file.lower().endswith(('.png', '.jpg', '.jpeg')):
                   img_path = os.path.join(person_dir, img_file)
@@ -83,15 +88,18 @@ def augment_and_process(input_dir, output_dir):
 def generar_embeddings(input_dir):
     """
     Genera embeddings de todas las imágenes aumentadas.
+    
+    Args:
+        input_dir (str): Carpeta que contiene las imágenes aumentadas.
     """
-    start_time = time.time()
-    embeddings = {}
+    start_time = time.time() #Guardar tiempo de inicio
+    embeddings = {} #Diccionario para guardar embeddings por persona
 
     persons = [p for p in os.listdir(input_dir) if os.path.isdir(os.path.join(input_dir, p))]
     for person in persons:
         person_dir = os.path.join(input_dir, person)
         img_files = [f for f in os.listdir(person_dir) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
-        embeddings[person] = []
+        embeddings[person] = [] #Lista de embeddings para esta persona
 
         print(f"\nProcesando persona: {person} ({len(img_files)} imágenes)")
 
@@ -102,14 +110,16 @@ def generar_embeddings(input_dir):
                 embeddings[person].append(emb)
             except Exception as e:
                 print(f"⚠️ Error procesando {img_file}: {e}")
-
+    # guardar embeddings en un archivo pickle
     with open(EMBEDDINGS_PATH, 'wb') as f:
         pickle.dump(embeddings, f)
 
     total_time = time.time() - start_time
     print(f"\n✅ Embeddings generados y guardados en '{EMBEDDINGS_PATH}'.")
 
+# Aplicamos data augmentation a las imágenes originales
 augment_and_process(DATA_DIR, PROCESSED_DIR)
 
+# Generamos y guardamos los embeddings
 print("\nGenerando embeddings...")
 generar_embeddings(PROCESSED_DIR)
